@@ -31,11 +31,11 @@ public class PointsController {
         return "Hello World";
     }
 
-    @GetMapping("/todo")
+    @GetMapping("/publication")
     public Collection<PointPublication> get(){
         return (Collection<PointPublication>) publicationService.get();
     }
-    @GetMapping("/todo/{id}")
+    @GetMapping("/publication/{id}")
     public Optional<PointPublication> get(@PathVariable int id){
         Optional<PointPublication> publication= publicationService.get(id);
         if(publication==null) throw  new ResponseStatusException(HttpStatus.NOT_FOUND);
@@ -47,7 +47,7 @@ public class PointsController {
         if(publication==null) throw  new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
 
-    @PostMapping("/add")
+    @PostMapping("/publication")
     public PointPublication post(@RequestBody PointPublication publication){
         int userId=publication.getUser().getIdUser();
         int point=publication.getPointType().getIdPointType();
