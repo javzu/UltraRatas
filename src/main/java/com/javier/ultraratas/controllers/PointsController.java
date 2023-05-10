@@ -1,9 +1,10 @@
 package com.javier.ultraratas.controllers;
 
+import com.javier.ultraratas.models.Bank;
 import com.javier.ultraratas.models.PointPublication;
 import com.javier.ultraratas.models.PointType;
 import com.javier.ultraratas.models.User;
-import com.javier.ultraratas.repository.UserRepository;
+import com.javier.ultraratas.services.BankService;
 import com.javier.ultraratas.services.PointTypeService;
 import com.javier.ultraratas.services.PublicationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -20,10 +23,13 @@ public class PointsController {
     // private List<PointPublicationModel> db= List.of(new PointPublicationModel(1,"Test", 2000, PublicationState.published));
     private final PublicationService publicationService;
     private final PointTypeService pointTypeService;
+
+    private final BankService bankService;
     @Autowired
-    public PointsController(PublicationService publicationService, PointTypeService pointTypeService) {
+    public PointsController(PublicationService publicationService, PointTypeService pointTypeService, BankService bankService) {
         this.publicationService = publicationService;
         this.pointTypeService=pointTypeService;
+        this.bankService=bankService;
     }
 
     @GetMapping("/")
@@ -41,6 +47,15 @@ public class PointsController {
         if(publication==null) throw  new ResponseStatusException(HttpStatus.NOT_FOUND);
         return publication;
     }
+    @GetMapping("/pointType/{id}")
+    public List<PointType> getPointId(@PathVariable Integer id){
+        if(id==null){
+            return Collections.emptyList();
+        }
+        List<PointType> pointType= pointTypeService.getPoint(id);
+        if(pointType==null) throw  new ResponseStatusException(HttpStatus.NOT_FOUND);
+        return pointType;
+    }
     @DeleteMapping("/todo/{id}")
     public void del(@PathVariable String id){
         PointPublication publication= publicationService.delete(id);
@@ -49,19 +64,40 @@ public class PointsController {
 
     @PostMapping("/publication")
     public PointPublication post(@RequestBody PointPublication publication){
-        int userId=publication.getUser().getIdUser();
-        int point=publication.getPointType().getIdPointType();
-        User user=publicationService.getUser(userId).orElseThrow(()->new IllegalArgumentException("No existe el usuario"));
-        PointType pointType= publicationService.getPoint(point).orElseThrow(()->new IllegalArgumentException("Puntos no definidos"));
+        int userId = publication.getUser().getIdUser();
+        int point = publication.getPointType().getIdPointType();
+        User user = publicationService.getUser(userId).orElseThrow(() -> new IllegalArgumentException("No existe el usuario"));
+        Optional<PointType> pointTypeOptional = pointTypeService.getPointDB(point);
+        PointType pointType;
+        if (pointTypeOptional.isPresent()) {
+            pointType = pointTypeOptional.get();
+            if (publication.getPointType().getIdPointType() != point) {
+                throw new IllegalArgumentException("El ID del tipo de punto recibido no coincide con el ID del tipo de punto esperado");
+            }
+            pointType.setPointName(publication.getPointType().getPointName());
+            pointType.setBank(publication.getPointType().getBank());
+        } else {
+            pointType = new PointType();
+            pointType.setIdPointType(point);
+            pointType.setPointName(publication.getPointType().getPointName());
+            pointType.setBank(publication.getPointType().getBank());
+        }
         publication.setUser(user);
         publication.setPointType(pointType);
         publicationService.save(publication);
+        //pointTypeService.save(pointType);
         return publication;
     }
 
     @GetMapping("/getPoints")
     public  Collection<PointType> createPoint(@RequestBody PointType pointType){
         return  pointTypeService.getPoints();
+    }
+
+    @GetMapping("/banks")
+    public Collection<Bank> getBanks(){
+        Collection Banks= bankService.getBanks();
+        return Banks;
     }
 
 

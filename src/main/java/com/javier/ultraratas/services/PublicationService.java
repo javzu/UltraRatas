@@ -11,8 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -27,10 +25,6 @@ public class PublicationService {
         this.userRepository=userRepository;
         this.pointTypeRepository=pointTypeRepository;
     }
-
-    private Map<String, PointPublication> db= new HashMap<String, PointPublication>(){{
-        //put("1",new PointPublication(1,"Test", 2000, PublicationState.published,));
-    }};
 
     public Collection<PointPublication> get() {
         return  publicationRepository.findAll();
@@ -58,6 +52,10 @@ public class PublicationService {
         publicationRepository.save(publication);
         //db.put("1",pointpublication);
         return pointpublication;
+    }
+
+    public void savePointType(PointType pointType){
+        pointTypeRepository.save(pointType);
     }
 
     public PointPublication delete(String id) {

@@ -18,6 +18,17 @@ public class PointType {
     public PointType() {
     }
 
+    public PointType(String pointName, Bank bank) {
+        this.pointName = pointName;
+        this.bank = bank;
+    }
+
+    public PointType(int idPointType, String pointName, Bank bank) {
+        this.idPointType = idPointType;
+        this.pointName = pointName;
+        this.bank = bank;
+    }
+
     public PointType(int idPointType) {
         this.idPointType = idPointType;
     }
@@ -44,5 +55,9 @@ public class PointType {
 
     public void setBank(Bank bank) {
         this.bank = bank;
+    }
+
+    public int getIdPointType(Object idPointType) {
+        return (int) idPointType;
     }
 }
