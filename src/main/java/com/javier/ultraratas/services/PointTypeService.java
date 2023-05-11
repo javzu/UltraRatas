@@ -37,9 +37,23 @@ public class PointTypeService {
     }
 
     public PointType save(PointType pointType) {
-        PointType pointtype= new PointType();
-        pointTypeRepository.save(pointtype);
-        //db.put("1",pointpublication);
+        try {
+            //System.out.println("SAVING");
+            PointType pointtype= new PointType();
+            pointTypeRepository.save(pointType);
+            //System.out.println("SAVED");
+            return pointType;
+        }
+        catch (Exception e){
+            System.out.println(e.toString());
+        }
+
         return pointType;
     }
+
+    public Collection<PointType> getByName(String name){
+        return pointTypeRepository.findByPointNameContaining(name);
+    }
+
+
 }

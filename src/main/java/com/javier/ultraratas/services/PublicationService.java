@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -50,7 +51,6 @@ public class PublicationService {
     public PointPublication save(PointPublication publication) {
         PointPublication pointpublication= new PointPublication();
         publicationRepository.save(publication);
-        //db.put("1",pointpublication);
         return pointpublication;
     }
 
@@ -61,4 +61,12 @@ public class PublicationService {
     public PointPublication delete(String id) {
         return null;
     }
+
+    public List<PointPublication> findByPointType(String pointTypeName) {
+        System.out.println("HERE");
+        List<PointType> pointTypes = pointTypeRepository.findByPointNameContaining(pointTypeName);
+        System.out.println(pointTypes.toString()+"RES¨P");
+        return publicationRepository.findByPointTypeIn(pointTypes);
+    }
+
 }

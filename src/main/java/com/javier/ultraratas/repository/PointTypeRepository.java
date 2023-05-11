@@ -10,6 +10,8 @@ import java.util.Optional;
 @Repository
 public interface PointTypeRepository extends JpaRepository<PointType,Integer> {
     List<PointType> findByBankId(int idBank);
+
+    List<PointType> findByPointNameContaining(String pointName);
     List<PointType> findAll();
 
 }

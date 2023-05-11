@@ -41,18 +41,20 @@ public class PointsController {
     public Collection<PointPublication> get(){
         return (Collection<PointPublication>) publicationService.get();
     }
-    @GetMapping("/publication/{id}")
-    public Optional<PointPublication> get(@PathVariable int id){
-        Optional<PointPublication> publication= publicationService.get(id);
-        if(publication==null) throw  new ResponseStatusException(HttpStatus.NOT_FOUND);
-        return publication;
+   // @GetMapping("/publication/{id}")
+   // public Optional<PointPublication> get(@PathVariable int id){
+   //     Optional<PointPublication> publication= publicationService.get(id);
+   //     if(publication==null) throw  new ResponseStatusException(HttpStatus.NOT_FOUND);
+   //     return publication;
+   // }
+
+    @GetMapping("/publication/{byPointName}")
+    public List<PointPublication> get(@PathVariable String byPointName){
+        return publicationService.findByPointType(byPointName);
     }
-    @GetMapping("/pointType/{id}")
-    public List<PointType> getPointId(@PathVariable Integer id){
-        if(id==null){
-            return Collections.emptyList();
-        }
-        List<PointType> pointType= pointTypeService.getPoint(id);
+    @GetMapping("/pointType/{name}")
+    public List<PointType> getPointId(@PathVariable String name){
+        List<PointType> pointType= (List<PointType>) pointTypeService.getByName(name);
         if(pointType==null) throw  new ResponseStatusException(HttpStatus.NOT_FOUND);
         return pointType;
     }
@@ -64,12 +66,14 @@ public class PointsController {
 
     @PostMapping("/publication")
     public PointPublication post(@RequestBody PointPublication publication){
+        System.out.println("POST");
         int userId = publication.getUser().getIdUser();
         int point = publication.getPointType().getIdPointType();
         User user = publicationService.getUser(userId).orElseThrow(() -> new IllegalArgumentException("No existe el usuario"));
         Optional<PointType> pointTypeOptional = pointTypeService.getPointDB(point);
-        PointType pointType;
+        PointType pointType= new PointType();
         if (pointTypeOptional.isPresent()) {
+            System.out.println("ENTRO ACA");
             pointType = pointTypeOptional.get();
             if (publication.getPointType().getIdPointType() != point) {
                 throw new IllegalArgumentException("El ID del tipo de punto recibido no coincide con el ID del tipo de punto esperado");
@@ -77,10 +81,15 @@ public class PointsController {
             pointType.setPointName(publication.getPointType().getPointName());
             pointType.setBank(publication.getPointType().getBank());
         } else {
-            pointType = new PointType();
+            System.out.println("ELSE");
+           // pointType = new PointType();
             pointType.setIdPointType(point);
             pointType.setPointName(publication.getPointType().getPointName());
             pointType.setBank(publication.getPointType().getBank());
+            System.out.println(publication.getPointType().getPointName());
+            System.out.println(publication.getPointType().getBank().getBankName());
+            System.out.println(publication.getPointType().getBank().getId());
+            pointTypeService.save(pointType);
         }
         publication.setUser(user);
         publication.setPointType(pointType);
